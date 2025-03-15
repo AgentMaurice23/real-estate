@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Accueil</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+</head>
+<body>
+    <form id="registrationForm">
+        <input type="text" id="city" name="city" placeholder="Ville">
+        <input type="text" id="country" name="country" placeholder="Pays">
+        <!-- Ajoutez les autres champs de votre formulaire ici -->
+        <button type="submit">S'inscrire</button>
+    </form>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(getLocationInfo, showError);
+            } else {
+                console.log("La géolocalisation n'est pas supportée par ce navigateur.");
+            }
+
+            function getLocationInfo(position) {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+
+                const apiKey = '6b5b4c508d10464e8f93104bc6fcb040';
+                const url = `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${apiKey}`;
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.results && data.results.length > 0) {
+                            const components = data.results[0].components;
+                            const city = components.city || components.town || components.village || '';
+                            const country = components.country || '';
+
+                            document.getElementById('city').value = city;
+                            document.getElementById('country').value = country;
+                        } else {
+                            console.log('Aucun résultat trouvé');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur:', error);
+                    });
+            }
+
+            function showError(error) {
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        console.log("L'utilisateur a refusé la demande de géolocalisation.");
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        console.log("Les informations de localisation ne sont pas disponibles.");
+                        break;
+                    case error.TIMEOUT:
+                        console.log("La demande de localisation a expiré.");
+                        break;
+                    case error.UNKNOWN_ERROR:
+                        console.log("Une erreur inconnue s'est produite.");
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
