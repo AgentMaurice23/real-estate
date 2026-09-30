@@ -17,3 +17,6 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+# Laravel generated files
+/bootstrap/cache/*.php
+/storage/logs/*
